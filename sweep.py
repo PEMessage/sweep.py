@@ -998,7 +998,8 @@ class TTYEvent(NamedTuple):
         elif type == TTY_MOUSE:
             button, mode, (line, column) = attrs
             names = []
-            names.append("\u2207" if mode & KEY_MODE_PRESS else "\u2206")
+            # names.append("\u2207" if mode & KEY_MODE_PRESS else "\u2206")
+            names.append("v" if mode & KEY_MODE_PRESS else "^")
             for mask, mode_name in (
                 (KEY_MODE_ALT, "alt"),
                 (KEY_MODE_CTRL, "ctrl"),
@@ -1007,7 +1008,8 @@ class TTYEvent(NamedTuple):
                 if mode & mask:
                     names.append(mode_name)
             names.append(
-                {0: "\u2205", 1: "left", 2: "right", 3: "middle", 4: "up", 5: "down"}[
+                # {0: "\u2205", 1: "left", 2: "right", 3: "middle", 4: "up", 5: "down"}[
+                {0: "null", 1: "left", 2: "right", 3: "middle", 4: "up", 5: "down"}[
                     button
                 ]
             )
@@ -2158,9 +2160,12 @@ class Theme:
             "list_scrollbar_off": Face(bg=base.with_alpha(0.5)),
             "candidate_active": Face(fg=bg.overlay(fg.with_alpha(0.9))),
             "candidate_inactive": Face(fg=bg.overlay(fg.with_alpha(0.4), linear=False)),
-            "symbol_selected": "\u25cf",  # ●
-            "symbol_sep_left": "\ue0b2",  # 
-            "symbol_sep_right": "\ue0b0",  # 
+            # "symbol_selected": "\u25cf",  # ●
+            "symbol_selected": "o",  # ●
+            # "symbol_sep_left": "\ue0b2",  # 
+            "symbol_sep_left": "<",  # 
+            # "symbol_sep_right": "\ue0b0",  # 
+            "symbol_sep_right": ">",  # 
         }
         return cls(attrs)
 
@@ -2247,7 +2252,7 @@ class InputWidget:
                     sep = (' ', '/')
                     first_meet = False
                     while self.cursor > 0:
-                        cur = self.buffer[self.cursor - 1]
+                        cur = self.buffer[max(0, self.cursor - 1)]
                         if cur not in sep:
                             self.cursor -= 1
                             del self.buffer[self.cursor]
@@ -2258,6 +2263,38 @@ class InputWidget:
                         else:
                             break
                     self.notify()
+
+                    # Method2:
+                    # if not self.buffer:
+                    #     return True
+                    # sep = (' ','/')
+                    # first = self.buffer[max(0, self.cursor - 1)]
+                    # if first in sep:
+                    #     del_sep = True
+                    # else:
+                    #     del_sep = False
+
+                    # def is_del(c):
+                    #     if del_sep:
+                    #         return c in sep
+                    #     else:
+                    #         return c not in sep
+
+                    # while self.cursor > 0:
+                    #     cur = self.buffer[max(0, self.cursor - 1)]
+                    #     if is_del(cur):
+                    #         self.cursor -= 1
+                    #         del self.buffer[self.cursor]
+                    #     else:
+                    #         break
+                    # self.notify()
+                    # return True
+                        # self.cursor -= 1
+                        # del self.buffer[self.cursor]
+                        # if self.buffer[self.cursor-1] not in (' ','/'):
+                        #     pass
+                        # else:
+                        #     break
         elif type == TTY_CHAR:
             self.buffer.insert(self.cursor, attrs)
             self.notify()
