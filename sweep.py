@@ -2243,6 +2243,21 @@ class InputWidget:
                     del self.buffer[self.cursor :]
                     self.notify()
                     return True
+                elif name == "w":
+                    sep = (' ', '/')
+                    first_meet = False
+                    while self.cursor > 0:
+                        cur = self.buffer[self.cursor - 1]
+                        if cur not in sep:
+                            self.cursor -= 1
+                            del self.buffer[self.cursor]
+                            first_meet = True
+                        elif not first_meet:
+                            self.cursor -= 1
+                            del self.buffer[self.cursor]
+                        else:
+                            break
+                    self.notify()
         elif type == TTY_CHAR:
             self.buffer.insert(self.cursor, attrs)
             self.notify()
